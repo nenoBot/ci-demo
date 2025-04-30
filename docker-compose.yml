@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  app:
+    image: anuenergy/demo-python:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5050:5050"
+    volumes:
+      - ./app:/app
+    environment:
+      - ENV_VAR_NAME=value
+    networks:
+      - app-network
