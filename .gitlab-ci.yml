@@ -1,0 +1,17 @@
+stages:
+  - test
+  - run
+
+test:
+  image: python:3.9-slim
+  stage: test
+  script:
+    - pip install flask
+    - echo "Flask installed successfully for testing."
+
+run:
+  image: python:3.9-slim
+  stage: run
+  script:
+    - pip install flask
+    - python app.py
