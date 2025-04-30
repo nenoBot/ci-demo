@@ -1,17 +1,51 @@
 stages:
+  - build
   - test
   - run
 
-test:
-  image: python:3.9-slim
-  stage: test
-  script:
-    - pip install flask
-    - echo "Flask installed successfully for testing."
+variables:
+  DOCKER_HOST: tcp://docker:2375/
+  DOCKER_TLS_CERTDIR: ""
 
-run:
-  image: python:3.9-slim
-  stage: run
+# 🔨 Build Stage
+build:
+  image: docker:latest
+  stage: build
+  services:
+    - docker:dind
   script:
-    - pip install flask
-    - python app.py
+    - echo "Building Docker image..."
+    - docker info
+    - docker-compose build
+    - echo "✅ Build completed."
+
+# 🧪 Test Stage
+test:
+  image: docker:latest
+  stage: test
+  services:
+    - docker:dind
+  script:
+    - echo "Running container in test mode..."
+    - docker-compose up -d
+    - echo "Waiting for app to be ready..."
+    - sleep 10
+    - curl --fail http://localhost:5050 || (echo "❌ App did not respond!" && exit 1)
+    - echo "✅ Test passed — app is responding."
+    - docker-compose down
+
+# 🚀 Run Stage
+run:
+  image: docker/compose:1.29.2
+  stage: run
+  services:
+    - docker:dind
+  script:
+    - echo "Starting app in detached mode..."
+    - docker-compose pull || true
+    - docker-compose up -d
+    - echo "App is running. Waiting for confirmation..."
+    - sleep 10
+    - curl --fail http://localhost:5050 || (echo "❌ App failed to run!" && exit 1)
+    - echo "✅ App is up and running."
+    - docker-compose down

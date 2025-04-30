@@ -1,6 +1,4 @@
-version: '3.8'
-
-services:
+services: 
   app:
     image: anuenergy/demo-python:latest
     build:
@@ -14,3 +12,7 @@ services:
       - ENV_VAR_NAME=value
     networks:
       - app-network
+
+networks:
+  app-network:
+    driver: bridge
